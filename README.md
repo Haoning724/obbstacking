@@ -1,6 +1,6 @@
 # OBBStacking
 
-This repo is for the python implementation of OBBStacking: An Ensemble Method for Remote Sensing Object Detection.
+This repo is for the python implementation of [OBBStacking: An Ensemble Method for Remote Sensing Object Detection](https://arxiv.org/abs/2209.13369).
 
 ## Latest Updates
 
@@ -60,3 +60,17 @@ python obbstacking.py "/path/to/image/folder/*.tif" --root_dir result_root_dir -
 ### DOTA
 
 Will be released soon.
+
+## Citation
+
+Please cite my article if you find the code or method helpful.
+```text
+@article{https://doi.org/10.48550/arxiv.2209.13369,
+  doi = {10.48550/ARXIV.2209.13369},
+  url = {https://arxiv.org/abs/2209.13369},
+  author = {Lin, Haoning and Sun, Changhao and Liu, Yunpeng},
+  title = {OBBStacking: An Ensemble Method for Remote Sensing Object Detection},
+  publisher = {arXiv},
+  year = {2022},
+}
+```
