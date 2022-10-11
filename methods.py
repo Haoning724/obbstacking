@@ -5,6 +5,10 @@ import math
 from scipy.optimize import fmin_bfgs
 
 
+def clip_to_valid(x):
+    return np.clip(x, a_min=0.01, a_max=1 - 1e-5)
+
+
 def iou_calculation(obj_array, center_obj_id, other_obj_id):
     def polygon_from_obj_array(obj_array, obj_id):
         return Polygon([[obj_array[obj_id, i], obj_array[obj_id, i + 1]] for i in range(0, 8, 2)])
@@ -53,7 +57,7 @@ def bbox_gather_fast(obj_array, cluster_list, weights):
     # cluster_flag = np.zeros((obj_array.shape[0]), dtype=bool)
 
     s = obj_array[:, -2]
-    s = np.clip(s, a_min=0.02, a_max=0.98)
+    s = clip_to_valid(s)
     w = np.take(weights, obj_array[:, -1].astype(int))
     scores = 1 / (1 + np.exp(np.log(s / (1 - s)) * w) + weights[-1])
 
@@ -162,3 +166,69 @@ def fit_ensemble_model(f, y):
     AB0 = np.append(AB0, 0)
     params = fmin_bfgs(objective, AB0, fprime=grad, disp=False)
     return params
+
+
+def assign_score_and_labels(obj_array, gt_obj_array, iou_thresh, merge_bbox_flag, num_models):
+    # cluster the prediction result
+    cluster_list = cluster_objs(obj_array, iou_thresh=iou_thresh)
+
+    # get scores
+    scores = np.zeros((len(cluster_list), num_models))
+    for cluster_id, cluster in enumerate(cluster_list):
+        for c in cluster:
+            scores[cluster_id, int(obj_array[c, -1])] = obj_array[c, -2]
+
+    # get tps
+    tp_flags = np.zeros((len(cluster_list),), dtype=bool)
+    # assign labels to clusters
+    if gt_obj_array.shape[0] > 0:
+        for cluster_id, cluster in enumerate(cluster_list):
+            if merge_bbox_flag:
+                raise NotImplemented
+
+            tp_list = cluster_objs(
+                np.concatenate((obj_array[[cluster[0]], :], gt_obj_array), axis=0)
+                , iou_thresh=iou_thresh, one_off=True)
+
+            if len(tp_list[0]) > 1:
+                tp_flags[cluster_id] = True
+
+    return scores, tp_flags, cluster_list, obj_array
+
+
+def combine_results_and_train(result_list):
+    # combine ...
+    scores = []
+    tp_flags = []
+    for img_result_dict in result_list:
+        for k, v in img_result_dict.items():
+            if k == '__meta__':
+                continue
+            scores_, tp_flags_, _, _ = v
+            scores.append(scores_)
+            tp_flags.append(tp_flags_)
+
+    # train ...
+    r_scores = clip_to_valid(np.concatenate(scores, axis=0))
+    r_scores = np.log(r_scores / (1 - r_scores))
+    theta = fit_ensemble_model(r_scores, np.concatenate(tp_flags, axis=0))
+    print(np.mean(np.concatenate(tp_flags, axis=0)))
+    return theta
+
+
+def stacking(obj_array, cluster_list, number_of_models, weights, merge_bbox_flag=True):
+    # apply bbox fusion
+    if merge_bbox_flag:
+        fuse_bbox_fast(obj_array, cluster_list, weights)
+
+    # apply meta-learner
+    center_ids = [a[0] for a in cluster_list]  # only pick the 1st one as the fused bbox.
+    ret_array = np.copy(obj_array[center_ids, :])
+    for id, cluster in enumerate(cluster_list):
+        scores = np.zeros((number_of_models,))
+        for i in cluster:
+            scores[int(obj_array[i, -1])] = obj_array[i, -2]
+        scores = clip_to_valid(scores)
+        r_scores = np.log(scores / (1 - scores))
+        ret_array[id, -2] = 1. / (1. + np.exp(np.dot(r_scores, weights[:number_of_models]) + weights[-1]))
+    return ret_array
