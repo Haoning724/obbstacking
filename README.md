@@ -2,6 +2,8 @@
 
 This repo is for the python implementation of [OBBStacking: An Ensemble Method for Remote Sensing Object Detection](https://arxiv.org/abs/2209.13369). This ensemble method helps us win 1st place in the challenge track **Fine-grained Object Recognition in High-Resolution Optical Images**, which was featured in [2021 Gaofen Challenge on Automated High-Resolution Earth Observation Image Interpretation](https://www.gaofen-challenge.com/)
 
+<img src="readme_assets/obb.png" alt="" width="350"/>
+
 ## Latest Updates
 
 **2022/10/11**
