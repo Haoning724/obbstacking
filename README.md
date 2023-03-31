@@ -58,7 +58,7 @@ To train the meta-learner, use the command below. Make sure to use the results f
 Note that parameter `output_name` should point to the folder of the groundtruth xmls.
 The learned meta-learner will be saved to `weights_url`
 ```bash
-python obbstacking.py--root_dir result_root_dir --input_names model_1_val model_2_val --output_name /path/to/ground/truth/folder/ --mode train --format FAIR --weights_url "weight.pkl"
+python obbstacking.py --root_dir result_root_dir --input_names model_1_val model_2_val --output_name /path/to/ground/truth/folder/ --mode train --format FAIR --weights_url "weight.pkl"
 ```
 
 To ensemble the test results, use the command below. Make sure to use the results from the test set.
