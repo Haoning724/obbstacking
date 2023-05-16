@@ -106,12 +106,13 @@ result_root_dir/
 
 Please cite my article if you find the code or method helpful.
 ```text
-@article{https://doi.org/10.48550/arxiv.2209.13369,
-  doi = {10.48550/ARXIV.2209.13369},
-  url = {https://arxiv.org/abs/2209.13369},
-  author = {Lin, Haoning and Sun, Changhao and Liu, Yunpeng},
-  title = {OBBStacking: An Ensemble Method for Remote Sensing Object Detection},
-  publisher = {arXiv},
-  year = {2022},
+@article{lin2023obbstacking,
+  title={OBBStacking: An Ensemble Method for Remote Sensing Object Detection},
+  author={Lin, Haoning and Sun, Changhao and Liu, Yunpeng},
+  journal={IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing},
+  volume={16},
+  pages={2112--2120},
+  year={2023},
+  publisher={IEEE}
 }
 ```
